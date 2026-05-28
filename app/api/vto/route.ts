@@ -20,9 +20,10 @@ async function pollTask(feature: string, taskId: string): Promise<string> {
       headers: { Authorization: `Bearer ${KEY()}` },
     })
     const data = await res.json()
+    if (!res.ok) throw new Error(data.message || `Poll failed (${res.status})`)
     const r = data.result
     if (r.status === 'success') return r.results[0].data[0].url
-    if (r.status === 'error') throw new Error(r.error || 'Task error')
+    if (r.status === 'error') throw new Error(r.message || r.error || 'Task error')
     await new Promise(x => setTimeout(x, r.polling_interval || 1000))
   }
   throw new Error('Timeout')

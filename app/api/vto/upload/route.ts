@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     }),
   })
   const initData = await initRes.json()
-  if (!initRes.ok) return NextResponse.json({ error: initData.message }, { status: 500 })
+  if (!initRes.ok) return NextResponse.json({ error: initData.message || `Upload init failed (${initRes.status})` }, { status: 500 })
 
   const fileInfo = initData.result.files[0]
   const { url, headers, method } = fileInfo.requests[0]
