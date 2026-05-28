@@ -1,23 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getAccessToken } from '@/lib/perfectcorp-auth'
 
 const BASE = 'https://yce-api-01.perfectcorp.com'
-const KEY = () => process.env.PERFECT_CORP_API_KEY!
 
 async function runTask(feature: string, payload: object) {
+  const token = await getAccessToken()
   const res = await fetch(`${BASE}/s2s/v1.0/task/${feature}`, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${KEY()}`, 'Content-Type': 'application/json' },
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ request_id: Date.now(), payload }),
   })
   const data = await res.json()
-  if (!res.ok) throw new Error(data.message || 'Task failed')
+  if (!res.ok) throw new Error(data.message || `Task start failed (${res.status})`)
   return data.result.task_id
 }
 
 async function pollTask(feature: string, taskId: string): Promise<string> {
+  const token = await getAccessToken()
   for (let i = 0; i < 60; i++) {
     const res = await fetch(`${BASE}/s2s/v1.0/task/${feature}?task_id=${encodeURIComponent(taskId)}`, {
-      headers: { Authorization: `Bearer ${KEY()}` },
+      headers: { Authorization: `Bearer ${token}` },
     })
     const data = await res.json()
     if (!res.ok) throw new Error(data.message || `Poll failed (${res.status})`)

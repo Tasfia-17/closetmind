@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getAccessToken } from '@/lib/perfectcorp-auth'
 
 const BASE = 'https://yce-api-01.perfectcorp.com'
-const KEY = () => process.env.PERFECT_CORP_API_KEY!
 
 export async function POST(req: NextRequest) {
   try {
     const { selfie_id } = await req.json()
+    const token = await getAccessToken()
+
     const taskRes = await fetch(`${BASE}/s2s/v1.0/task/skin-analysis`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${KEY()}`, 'Content-Type': 'application/json' },
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         request_id: Date.now(),
         payload: {
@@ -24,7 +26,7 @@ export async function POST(req: NextRequest) {
 
     for (let i = 0; i < 60; i++) {
       const poll = await fetch(`${BASE}/s2s/v1.0/task/skin-analysis?task_id=${encodeURIComponent(taskId)}`, {
-        headers: { Authorization: `Bearer ${KEY()}` },
+        headers: { Authorization: `Bearer ${token}` },
       })
       const d = await poll.json()
       if (d.result.status === 'success') return NextResponse.json({ url: d.result.results[0].data[0].url })
