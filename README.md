@@ -1,7 +1,12 @@
 # ClosetMind
 
-**The first AI-powered multimodal memory wardrobe.**
 Digitize everything you own, search it like Google, and see it on your body today with Perfect Corp VTO.
+
+ClosetMind is a full-stack AI wardrobe assistant built with Next.js 15 and the Perfect Corp YouCam API suite. It solves a problem that affects nearly every person who owns clothes: the gap between what you own and what you actually wear. Most wardrobe apps stop at cataloguing. ClosetMind goes further — it remembers context, learns your preferences implicitly, reasons about occasions, and renders your actual clothes on your actual face using 14 production-grade AI/AR APIs.
+
+The system is built around three core ideas. First, memory should be multimodal — an item is not just a name and a photo, it is a rich object with color, fabric, season, formality, wear history, and semantic tags that can be recalled through natural language. Second, search should feel like thinking — typing "something cozy for a rainy afternoon" should surface soft knits and neutral tones, not require you to remember the exact name you gave a sweater three months ago. Third, visualization should be real — not a generic model wearing a similar garment, but your clothes on your body as it looks today, rendered by AI in seconds.
+
+Every page in ClosetMind is connected to this philosophy. Onboarding captures your selfie once and reuses it everywhere. The dashboard surfaces rediscoveries — items you own but have not worn in 90+ days. The occasion solver runs the Smart 3 algorithm to give you exactly three outfit options (Safe, Fresh, Remix) so you never face a blank screen. The studio and look pages connect directly to Perfect Corp's VTO pipeline so you can see any item, or a full outfit, rendered on yourself before you get dressed.
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://typescriptlang.org)
@@ -314,13 +319,25 @@ Animations: falling petal rain on landing page (12 petals, 3 animation variants,
 
 ## Challenges and Solutions
 
-**API version discrepancy**: The submission doc referenced v2.0 endpoints. The actual Perfect Corp documentation only shows v1.0. All endpoints were verified against the official docs at `app-cdn-01.perfectcorp.com/console/common/doc/ai-api/index.html` before writing any code.
+**API version discrepancy**: The submission doc referenced v2.0 endpoints. The actual Perfect Corp documentation only shows v1.0. All endpoints were verified against the official docs at `app-cdn-01.perfectcorp.com/console/common/doc/ai-api/index.html` before writing any code. Every route handler was written against the verified v1.0 request and response shapes, including the two-step presigned upload flow and the polling contract.
 
-**Semantic search without a vector database**: Built a keyword expansion map that translates natural language concepts ("cozy", "formal", "rainy") into fabric types, categories, and formality levels. Achieves 85% precision on natural language queries without any external service.
+**VTO "task failed" on Vercel**: The most common deployment issue. `.env.local` is gitignored (correctly), so the `PERFECT_CORP_API_KEY` environment variable is never present on Vercel unless added manually. Without it, every call to Perfect Corp returns a 401 which the polling loop catches as a generic task error. Fix: go to Vercel → Settings → Environment Variables, add `PERFECT_CORP_API_KEY`, set scope to Production + Preview + Development, then redeploy. The error message in the VTO route was also improved to surface the actual HTTP status and Perfect Corp error body rather than a generic string.
 
-**Decision paralysis**: The Smart 3 algorithm always returns exactly 3 options regardless of how many items match. This is the core UX innovation.
+**Selfie ID lost between pages**: The selfie upload happens once on the Studio or Look page, and the resulting `file_id` from Perfect Corp must persist across navigation. This is stored in `localStorage` under `closetmind_selfie_id` and rehydrated on mount. If the key is missing (first visit, cleared storage, or failed upload), the Try It On button is disabled and the user sees a clear prompt to upload a selfie first.
 
-**Preference learning without ratings**: Five implicit signals tracked automatically: wear count, last worn date, freshness (days since worn), occasion correlation (via tags), and category diversity in outfit logs.
+**Polling timeout on slow networks**: The poll loop runs up to 60 iterations with a dynamic interval taken from `result.polling_interval` in the Perfect Corp response (typically 1–3 seconds). On very slow connections or when the Perfect Corp task queue is busy, this can exhaust the 60-iteration limit. The error message now says "Timeout" explicitly so users know to retry rather than assume a permanent failure.
+
+**Semantic search without a vector database**: Built a keyword expansion map that translates natural language concepts ("cozy", "formal", "rainy") into fabric types, categories, and formality levels. Achieves 85% precision on natural language queries without any external service, vector store, or embedding API. The scoring formula weights semantic match at 70%, lexical match at 20%, and preference signals at 10%, which keeps frequently worn and recently rediscovered items surfaced naturally.
+
+**Decision paralysis**: The Smart 3 algorithm always returns exactly 3 options regardless of how many items match. The three slots are structurally different — Safe (highest score, proven), Fresh (unworn 60+ days), Remix (different category from Safe) — so the user always gets variety without having to scroll through a ranked list.
+
+**Preference learning without ratings**: Five implicit signals are tracked automatically with zero user effort: wear count incremented on every logged outfit, last worn date, freshness score (days since last worn), occasion tag correlation, and category diversity across outfit logs. There are no star ratings, no thumbs up/down, no explicit feedback prompts. The system learns from what you actually do.
+
+**Garment category to VTO feature mapping**: Perfect Corp uses different endpoint names for different garment types (`cloth`, `shoes`, `bag`, `2d-vto/earring`, etc.). The wardrobe item category (clothing, footwear, bag, jewelry) is mapped to the correct feature string in both the Studio and Look pages before the API call is made. Items with unmapped categories fall back to `cloth` so the VTO never hard-fails on an unknown category.
+
+**File content-type on upload**: The presigned URL PUT request requires the exact `Content-Type` header that was declared in the file init step. The upload route reads `file.type` from the FormData File object and passes it through both the init body and the PUT headers, ensuring Perfect Corp accepts the upload without a signature mismatch error.
+
+**localStorage on server components**: All wardrobe state lives in `localStorage` which is browser-only. Any page that reads wardrobe data uses `'use client'` and wraps the `localStorage` read in a `useEffect` to avoid SSR hydration mismatches. The `getWardrobe()` helper in `lib/memory.ts` is safe to call client-side only.
 
 ---
 
