@@ -63,7 +63,8 @@ function StudioContent() {
   }
 
   async function runVTO() {
-    if (!selected || !selfieId) return
+    if (!selfieId) { setError('Upload a selfie first'); return }
+    if (!selected) { setError('Select an item first'); return }
     setLoading(true)
     setError('')
     setResult('')
@@ -156,9 +157,11 @@ function StudioContent() {
               )}
             </div>
             {error && <div className="text-xs text-red-500 mb-3">{error}</div>}
+            {!selfieId && !selfieUploading && <div className="text-xs text-amber-600 mb-2">📸 Upload a selfie first</div>}
+            {selfieId && !selected && <div className="text-xs text-amber-600 mb-2">👗 Select an item below</div>}
             <button
               onClick={runVTO}
-              disabled={!selected || !selfieId || loading || selfieUploading}
+              disabled={loading || selfieUploading}
               className="btn-primary w-full"
             >
               {selfieUploading ? 'Uploading selfie...' : loading ? 'Rendering...' : 'Try it on'}

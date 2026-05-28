@@ -36,7 +36,8 @@ export default function LookPage() {
   }
 
   async function assembleLook() {
-    if (!selfieId || selected.length === 0) return
+    if (!selfieId) { alert('Upload a selfie first'); return }
+    if (selected.length === 0) { alert('Select at least one item'); return }
     setLoading(true)
     setResults([])
     const newResults: { item: WardrobeItem; url: string }[] = []
@@ -125,7 +126,7 @@ export default function LookPage() {
 
             <button
               onClick={assembleLook}
-              disabled={!selfieId || selected.length === 0 || loading || selfieUploading}
+              disabled={loading || selfieUploading}
               className="btn-primary w-full"
             >
               {selfieUploading ? 'Uploading selfie...' : loading ? currentStep || 'Rendering...' : 'Assemble look'}
