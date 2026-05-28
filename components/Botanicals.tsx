@@ -2,45 +2,54 @@ import { Daisy, Rose, Tulip, Poppy, Wildflower, Bud, Leaf } from './Flowers'
 
 export function BotanicalLeft() {
   return (
-    <svg width={160} height={320} viewBox="0 0 160 320" fill="none" className="pointer-events-none select-none">
-      <Leaf x1={20} y1={280} x2={60} y2={200} opacity={0.25} />
-      <Leaf x1={10} y1={240} x2={50} y2={160} flip opacity={0.2} />
-      <Leaf x1={30} y1={300} x2={80} y2={240} opacity={0.18} />
-      <Daisy cx={40} cy={180} r={18} rotate={15} opacity={0.55} />
-      <Rose cx={20} cy={120} r={14} rotate={-20} opacity={0.45} />
-      <Tulip cx={70} cy={220} r={14} rotate={10} opacity={0.5} />
-      <Wildflower cx={50} cy={80} r={12} rotate={30} opacity={0.4} />
-      <Bud cx={90} cy={150} r={8} rotate={-10} opacity={0.5} />
-      <Poppy cx={30} cy={60} r={16} rotate={5} opacity={0.35} />
+    <svg width={180} height={340} viewBox="0 0 180 340" fill="none"
+      className="pointer-events-none select-none" aria-hidden="true">
+      <Leaf x1={30} y1={320} x2={80} y2={220} opacity={0.25} />
+      <Leaf x1={10} y1={280} x2={60} y2={180} flip opacity={0.2} />
+      <Leaf x1={50} y1={300} x2={100} y2={240} opacity={0.18} />
+      <Leaf x1={20} y1={200} x2={70} y2={140} flip opacity={0.15} />
+      <Daisy cx={55} cy={200} r={20} rotate={15} opacity={0.55} />
+      <Rose cx={25} cy={130} r={16} rotate={-20} opacity={0.45} />
+      <Tulip cx={85} cy={250} r={15} rotate={10} opacity={0.5} />
+      <Wildflower cx={60} cy={90} r={13} rotate={30} opacity={0.4} />
+      <Bud cx={100} cy={165} r={9} rotate={-10} opacity={0.5} />
+      <Poppy cx={35} cy={65} r={17} rotate={5} opacity={0.35} />
+      <Bud cx={140} cy={210} r={7} rotate={25} opacity={0.35} />
+      <Wildflower cx={120} cy={290} r={10} rotate={-15} opacity={0.3} />
     </svg>
   )
 }
 
 export function BotanicalRight() {
   return (
-    <svg width={160} height={320} viewBox="0 0 160 320" fill="none" className="pointer-events-none select-none">
-      <Leaf x1={140} y1={280} x2={100} y2={200} flip opacity={0.25} />
-      <Leaf x1={150} y1={240} x2={110} y2={160} opacity={0.2} />
+    <svg width={180} height={340} viewBox="0 0 180 340" fill="none"
+      className="pointer-events-none select-none" aria-hidden="true">
+      <Leaf x1={150} y1={320} x2={100} y2={220} flip opacity={0.25} />
+      <Leaf x1={170} y1={280} x2={120} y2={180} opacity={0.2} />
       <Leaf x1={130} y1={300} x2={80} y2={240} flip opacity={0.18} />
-      <Daisy cx={120} cy={180} r={18} rotate={-15} opacity={0.55} />
-      <Rose cx={140} cy={120} r={14} rotate={20} opacity={0.45} />
-      <Tulip cx={90} cy={220} r={14} rotate={-10} opacity={0.5} />
-      <Wildflower cx={110} cy={80} r={12} rotate={-30} opacity={0.4} />
-      <Bud cx={70} cy={150} r={8} rotate={10} opacity={0.5} />
-      <Poppy cx={130} cy={60} r={16} rotate={-5} opacity={0.35} />
+      <Leaf x1={160} y1={200} x2={110} y2={140} opacity={0.15} />
+      <Daisy cx={125} cy={200} r={20} rotate={-15} opacity={0.55} />
+      <Rose cx={155} cy={130} r={16} rotate={20} opacity={0.45} />
+      <Tulip cx={95} cy={250} r={15} rotate={-10} opacity={0.5} />
+      <Wildflower cx={120} cy={90} r={13} rotate={-30} opacity={0.4} />
+      <Bud cx={80} cy={165} r={9} rotate={10} opacity={0.5} />
+      <Poppy cx={145} cy={65} r={17} rotate={-5} opacity={0.35} />
+      <Bud cx={40} cy={210} r={7} rotate={-25} opacity={0.35} />
+      <Wildflower cx={60} cy={290} r={10} rotate={15} opacity={0.3} />
     </svg>
   )
 }
 
 export function GardenDivider() {
   return (
-    <div className="flex items-center justify-center gap-4 my-8 opacity-40">
+    <div className="flex items-center justify-center gap-4 my-8 opacity-40" aria-hidden="true">
       <div className="h-px flex-1 bg-[#d4cfc4]" />
-      <svg width={80} height={24} viewBox="0 0 80 24">
-        <Daisy cx={10} cy={12} r={8} opacity={0.8} />
-        <Wildflower cx={30} cy={12} r={7} opacity={0.7} />
-        <Rose cx={50} cy={12} r={8} opacity={0.8} />
-        <Bud cx={70} cy={12} r={6} opacity={0.7} />
+      <svg width={100} height={28} viewBox="0 0 100 28">
+        <Daisy cx={12} cy={14} r={9} opacity={0.9} />
+        <Wildflower cx={32} cy={14} r={8} rotate={18} opacity={0.8} />
+        <Rose cx={52} cy={14} r={9} rotate={-10} opacity={0.85} />
+        <Bud cx={72} cy={14} r={7} rotate={5} opacity={0.8} />
+        <Tulip cx={90} cy={14} r={8} rotate={-8} opacity={0.75} />
       </svg>
       <div className="h-px flex-1 bg-[#d4cfc4]" />
     </div>
@@ -50,18 +59,22 @@ export function GardenDivider() {
 export function CornerSprig({ flip = false }: { flip?: boolean }) {
   return (
     <svg
-      width={80} height={80} viewBox="0 0 80 80" fill="none"
+      width={90} height={90} viewBox="0 0 90 90" fill="none"
       className={`pointer-events-none select-none opacity-30 ${flip ? 'scale-x-[-1]' : ''}`}
+      aria-hidden="true"
     >
-      <Leaf x1={10} y1={70} x2={40} y2={30} opacity={0.6} />
-      <Leaf x1={20} y1={75} x2={55} y2={45} flip opacity={0.5} />
-      <Daisy cx={45} cy={25} r={12} rotate={20} opacity={0.9} />
-      <Bud cx={60} cy={45} r={7} rotate={-15} opacity={0.8} />
+      <Leaf x1={10} y1={80} x2={45} y2={35} opacity={0.7} />
+      <Leaf x1={22} y1={82} x2={60} y2={50} flip opacity={0.55} />
+      <Daisy cx={50} cy={28} r={14} rotate={20} opacity={0.95} />
+      <Bud cx={65} cy={50} r={8} rotate={-15} opacity={0.85} />
+      <Wildflower cx={30} cy={55} r={7} rotate={10} opacity={0.6} />
     </svg>
   )
 }
 
+// ── Petal rain — exact mirrorweb data ────────────────────────────────────────
 const PETALS = [
+  // [left%, animClass, dur(s), delay(s), size(px), rotate]
   [8,  'petal-1', 7,  0,   10, 20],
   [15, 'petal-2', 9,  1.5, 8,  -30],
   [22, 'petal-3', 11, 0.5, 12, 45],
@@ -78,7 +91,7 @@ const PETALS = [
 
 export function PetalRain() {
   return (
-    <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
+    <div className="pointer-events-none fixed inset-0 overflow-hidden z-0" aria-hidden="true">
       {PETALS.map(([left, cls, dur, delay, size, rot], i) => (
         <div
           key={i}
@@ -93,8 +106,13 @@ export function PetalRain() {
             '--delay': `${delay}s`,
           } as React.CSSProperties}
         >
-          <svg width={size} height={size} viewBox="-10 -10 20 20">
-            <ellipse rx={6} ry={9} fill="#c9a0b8" opacity={0.6} transform={`rotate(${rot})`} />
+          <svg width={size} height={size} viewBox="-8 -10 16 20">
+            <path
+              d={`M0,-9 C3,-6 4,-1 2,3 C0,6 -2,6 -2,3 C-4,-1 -3,-6 0,-9Z`}
+              fill="#c9a0b8"
+              opacity={0.65}
+              transform={`rotate(${rot})`}
+            />
           </svg>
         </div>
       ))}
