@@ -20,6 +20,8 @@ function StudioContent() {
   const [selfieFile, setSelfieFile] = useState<File | null>(null)
   const [selfiePreview, setSelfiePreview] = useState('')
   const [selfieId, setSelfieId] = useState('')
+  const [selfieError, setSelfieError] = useState('')
+  const [selfieUploading, setSelfieUploading] = useState(false)
   const [result, setResult] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -38,14 +40,25 @@ function StudioContent() {
   async function uploadSelfie(file: File) {
     setSelfieFile(file)
     setSelfiePreview(URL.createObjectURL(file))
-    const fd = new FormData()
-    fd.append('file', file)
-    fd.append('feature', 'cloth')
-    const res = await fetch('/api/vto/upload', { method: 'POST', body: fd })
-    const data = await res.json()
-    if (data.file_id) {
-      setSelfieId(data.file_id)
-      localStorage.setItem('closetmind_selfie_id', data.file_id)
+    setSelfieError('')
+    setSelfieUploading(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('feature', 'cloth')
+      const res = await fetch('/api/vto/upload', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (data.file_id) {
+        setSelfieId(data.file_id)
+        localStorage.setItem('closetmind_selfie_id', data.file_id)
+        localStorage.setItem('closetmind_selfie_url', URL.createObjectURL(file))
+      } else {
+        setSelfieError(data.error || 'Upload failed — check API key in Vercel env vars')
+      }
+    } catch (e: unknown) {
+      setSelfieError((e as Error).message)
+    } finally {
+      setSelfieUploading(false)
     }
   }
 
@@ -97,6 +110,8 @@ function StudioContent() {
               <input type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) uploadSelfie(f) }} />
             </label>
             {selfieId && <div className="text-[10px] text-[#50B33A]">✓ Ready for VTO</div>}
+            {selfieUploading && <div className="text-[10px] text-[#9e9a91]">Uploading...</div>}
+            {selfieError && <div className="text-[10px] text-red-500">{selfieError}</div>}
           </div>
 
           {/* Item selector */}
@@ -143,10 +158,10 @@ function StudioContent() {
             {error && <div className="text-xs text-red-500 mb-3">{error}</div>}
             <button
               onClick={runVTO}
-              disabled={!selected || !selfieId || loading}
+              disabled={!selected || !selfieId || loading || selfieUploading}
               className="btn-primary w-full"
             >
-              {loading ? 'Rendering...' : 'Try it on'}
+              {selfieUploading ? 'Uploading selfie...' : loading ? 'Rendering...' : 'Try it on'}
             </button>
             {result && (
               <a href={result} download className="btn-secondary w-full mt-2 text-center block">

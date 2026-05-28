@@ -15,6 +15,8 @@ export default function LookPage() {
   const [selected, setSelected] = useState<WardrobeItem[]>([])
   const [selfieId, setSelfieId] = useState('')
   const [selfiePreview, setSelfiePreview] = useState('')
+  const [selfieError, setSelfieError] = useState('')
+  const [selfieUploading, setSelfieUploading] = useState(false)
   const [results, setResults] = useState<{ item: WardrobeItem; url: string }[]>([])
   const [loading, setLoading] = useState(false)
   const [currentStep, setCurrentStep] = useState('')
@@ -58,14 +60,24 @@ export default function LookPage() {
 
   async function uploadSelfie(file: File) {
     setSelfiePreview(URL.createObjectURL(file))
-    const fd = new FormData()
-    fd.append('file', file)
-    fd.append('feature', 'cloth')
-    const res = await fetch('/api/vto/upload', { method: 'POST', body: fd })
-    const data = await res.json()
-    if (data.file_id) {
-      setSelfieId(data.file_id)
-      localStorage.setItem('closetmind_selfie_id', data.file_id)
+    setSelfieError('')
+    setSelfieUploading(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('feature', 'cloth')
+      const res = await fetch('/api/vto/upload', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (data.file_id) {
+        setSelfieId(data.file_id)
+        localStorage.setItem('closetmind_selfie_id', data.file_id)
+      } else {
+        setSelfieError(data.error || 'Upload failed — check API key in Vercel env vars')
+      }
+    } catch (e: unknown) {
+      setSelfieError((e as Error).message)
+    } finally {
+      setSelfieUploading(false)
     }
   }
 
@@ -92,6 +104,9 @@ export default function LookPage() {
                 }
                 <input type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) uploadSelfie(f) }} />
               </label>
+              {selfieUploading && <div className="text-[10px] text-[#9e9a91] mt-1">Uploading...</div>}
+              {selfieError && <div className="text-[10px] text-red-500 mt-1">{selfieError}</div>}
+              {selfieId && !selfieUploading && <div className="text-[10px] text-[#50B33A] mt-1">✓ Ready</div>}
             </div>
 
             <div className="card p-4">
@@ -110,10 +125,10 @@ export default function LookPage() {
 
             <button
               onClick={assembleLook}
-              disabled={!selfieId || selected.length === 0 || loading}
+              disabled={!selfieId || selected.length === 0 || loading || selfieUploading}
               className="btn-primary w-full"
             >
-              {loading ? currentStep || 'Rendering...' : 'Assemble look'}
+              {selfieUploading ? 'Uploading selfie...' : loading ? currentStep || 'Rendering...' : 'Assemble look'}
             </button>
           </div>
 
