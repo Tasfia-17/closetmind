@@ -1,0 +1,37 @@
+import { NextRequest, NextResponse } from 'next/server'
+
+const BASE = 'https://yce-api-01.perfectcorp.com'
+const KEY = () => process.env.PERFECT_CORP_API_KEY!
+
+export async function POST(req: NextRequest) {
+  try {
+    const { selfie_id } = await req.json()
+    const taskRes = await fetch(`${BASE}/s2s/v1.0/task/face-attr-analysis`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${KEY()}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        request_id: Date.now(),
+        payload: {
+          file_sets: { src_ids: [selfie_id] },
+          actions: [{ id: 0 }],
+        },
+      }),
+    })
+    const taskData = await taskRes.json()
+    if (!taskRes.ok) return NextResponse.json({ error: taskData.message }, { status: 500 })
+    const taskId = taskData.result.task_id
+
+    for (let i = 0; i < 60; i++) {
+      const poll = await fetch(`${BASE}/s2s/v1.0/task/face-attr-analysis?task_id=${encodeURIComponent(taskId)}`, {
+        headers: { Authorization: `Bearer ${KEY()}` },
+      })
+      const d = await poll.json()
+      if (d.result.status === 'success') return NextResponse.json({ url: d.result.results[0].data[0].url })
+      if (d.result.status === 'error') return NextResponse.json({ error: d.result.error }, { status: 500 })
+      await new Promise(r => setTimeout(r, d.result.polling_interval || 1000))
+    }
+    return NextResponse.json({ error: 'Timeout' }, { status: 500 })
+  } catch (e: unknown) {
+    return NextResponse.json({ error: (e as Error).message }, { status: 500 })
+  }
+}
